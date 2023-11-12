@@ -1,0 +1,63 @@
+
+
+
+#app h2 {
+  margin:0 auto;
+  padding-top:32px;
+  color:white;
+}
+
+.image-input {
+
+  margin-top:20px;
+  margin-bottom:80px;
+  text-align:center;
+  border-radius:6px;
+  padding:6px;
+  font-size:20px;
+}
+
+.scene {
+
+  width:100%;
+  height:600px;
+  perspective:1100px;
+  -webkit-perspective:1100px;
+  perspective-origin:50% 50%;
+  transform-style:preserve-3d;
+  position:relative;
+  margin:0 auto;
+  overflow:hidden;
+}
+
+.carousel-3d {
+
+  position:absolute;
+  top:50%;
+  left:50%;
+  backface-visibility: visible;
+  transform:rotateX(20deg) rotateY(30deg) rotateZ(10deg);
+  transform-style:preserve-3d;
+  transform-origin:50% 50%;
+  cursor:pointer;
+}
+
+.carousel-item {
+
+  width:400px;
+  height:400px;
+  transform-origin:50% 50%;
+  position:absolute;
+  backface-visibility: visible;
+  top:-200px;
+  left:-200px;
+  border:4px solid #eee;
+  border-radius:12px;
+  background-color:cyan;
+  background-repeat:no-repeat;
+  background-size:contain;
+  background-position:center;
+}
+
+
+
