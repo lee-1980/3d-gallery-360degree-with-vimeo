@@ -30,7 +30,7 @@ export default class CarouselItem {
 
     const el = this.el = children || document.createElement('div');
     el.style.width = `${this.c3d.size/2}px`;
-    el.style.height = `${this.c3d.size}px`;
+    el.style.height = `auto`;
   }
 
   /**

@@ -1,6 +1,8 @@
 
 import anime from 'animejs';
+import Player from '@vimeo/player';
 import CarouselItem from './CarouselItem';
+
 
 /**
  * @author  raizensoft.com
@@ -23,7 +25,7 @@ export default class Carousel3D {
   scale:number;
   total:number;
   radius:number;
-  citems:CarouselItem[];
+  citems: NodeListOf<HTMLDivElement>;
   tiltAngle:number;
   drag: boolean = false;
   startingX: number | undefined;
@@ -31,7 +33,7 @@ export default class Carousel3D {
   lastMouseX: number | undefined;
 
 
-  constructor(size:number = 400, total:number = 15, radius:number = 1000) {
+  constructor(size:number = 400, total:number = 15, radius:number = 700) {
 
     // Item size and default total items
     this.size = size;
@@ -49,7 +51,7 @@ export default class Carousel3D {
 
     try{
 
-      const el = this.el = document.querySelector('.carousel-3d')
+      const el = this.el = document.querySelector('.carousel-3d') || document.createElement('div');
       if(!this.el) return;
       // Image and canvas element
 
@@ -58,45 +60,42 @@ export default class Carousel3D {
       this.scale = 1;
 
       // Generate carousel items
-      this.citems = document.querySelectorAll('.scene .carousel-item') as any;
+      this.citems = document.querySelectorAll('.scene .carousel-item')
+      this.citems.length && (() => {
+        this.total = this.citems.length;
+
+        const angleSegment = 360 / this.total;
+        for (let i = 0; i < this.total; i++) {
+
+          new CarouselItem(this.citems[i], this).setPosition(angleSegment * i);
+          let player = new Player(this.citems[i]);
+          player.on('play', () => {
+            const childComment = this.citems[i].querySelector('.carousel-item-comment') as HTMLDivElement;
+            childComment && childComment.style && (childComment.style.transform = 'rotateY(360deg)')
+            this.stopAnimate();
+          });
+          player.on('pause', () => {
+            this.startAnimate();
+            const childComment = this.citems[i].querySelector('.carousel-item-comment') as HTMLDivElement;
+            childComment && childComment.style && (childComment.style.transform = 'rotateY(0deg)')
+
+          });
+        }
+
+        // Get the Slider Container
+        let sliderContainer = document.querySelector('.scene') as HTMLDivElement;
+        if(sliderContainer) {
+          sliderContainer.addEventListener('touchstart', this.downListener)
+          sliderContainer.addEventListener('mousedown', this.downListener)
+          sliderContainer.addEventListener('touchmove', this.moveListener)
+          sliderContainer.addEventListener('mousemove', this.moveListener)
+          sliderContainer.addEventListener('mouseup', this.upListener)
+          sliderContainer.addEventListener('touchend', this.upListener)
+          sliderContainer.addEventListener('mouseout', this.mouseoutListener)
+        }
+      })();
 
       if(!this.citems.length) return;
-      this.total = this.citems.length;
-
-      const angleSegment = 360 / this.total;
-      for (let i = 0; i < this.total; i++) {
-        new CarouselItem(this.citems[i], this).setPosition(angleSegment * i);
-        let player = new Vimeo.player(this.citems[i]);
-        player.on('play', () => {
-
-        });
-        player.on('stop', () => {
-
-        });
-      }
-
-      // Track mouse position
-      document.body.addEventListener('pointermove', (e:PointerEvent) => {
-
-        const height = document.body.offsetHeight;
-        //console.log((e.clientY - height) / height);
-        this.tiltAngle = (height - e.clientY) / height - 0.5;
-        // console.log((height - e.clientY) / height - 0.5);
-      });
-
-      // Get the Slider Container
-
-      let sliderContainer = document.querySelector('.scene') as HTMLDivElement;
-
-      if(sliderContainer) {
-        sliderContainer.addEventListener('touchstart', this.downListener)
-        sliderContainer.addEventListener('mousedown', this.downListener)
-        sliderContainer.addEventListener('touchmove', this.moveListener)
-        sliderContainer.addEventListener('mousemove', this.moveListener)
-        sliderContainer.addEventListener('mouseup', this.upListener)
-        sliderContainer.addEventListener('touchend', this.upListener)
-        sliderContainer.addEventListener('mouseout', this.mouseoutListener)
-      }
 
     }
     catch (e) {
@@ -120,12 +119,12 @@ export default class Carousel3D {
    * Start animation using requestAnimationFrame
    */
   startAnimate = () => {
-
     const doAnimate = () => {
+      if(this.rid) cancelAnimationFrame(this.rid);
       this.rid = requestAnimationFrame(doAnimate);
       this.yAngle += ROTATE_SPEED;
       this.xAngle += (-this.tiltAngle * 20 - this.xAngle) * 1;
-      this.el.style.transform = `scale(${this.scale}) translateZ(-1100px) rotateX(${this.xAngle}deg) rotateY(${this.yAngle}deg)`;
+      this.el.style.transform = `scale(${this.scale}) translateZ(-900px) rotateX(${this.xAngle}deg) rotateY(${this.yAngle}deg)`;
 
     };
     doAnimate();
@@ -142,17 +141,17 @@ export default class Carousel3D {
     this.startAnimate()
   }
 
-  mouseoutListener = (e) => {
+  mouseoutListener = (e : any) => {
     if(this.drag && (!e.relatedTarget || e.relatedTarget.nodeName == 'HTML')) {
       this.resetPosition()
     }
   }
 
-  moveListener = (e) => {
-    const moveX = Math.abs(e.pageX - this.startingX)
-    const moveY = Math.abs(e.pageY - this.startingY)
+  moveListener = (e : any) => {
+    const moveX = this.startingX? Math.abs(e.pageX - this.startingX): 0
+    const moveY = this.startingY? Math.abs(e.pageY - this.startingY): 0
     if (moveX >= 5 || moveY >= 5) {
-      if(!isNaN(e.pageX - this.lastMouseX)){
+      if(this.lastMouseX && !isNaN(e.pageX - this.lastMouseX)){
         this.drag = true
         this.yAngle += ROTATE_SPEED * (e.pageX - this.lastMouseX);
         this.xAngle += (-this.tiltAngle * 20 - this.xAngle) * 0.01;
@@ -162,10 +161,10 @@ export default class Carousel3D {
     this.lastMouseX = e.pageX
   }
 
-  downListener = (event) => {
+  downListener = (e: any) => {
     this.drag = false
-    this.startingX = event.pageX
-    this.startingY = event.pageY
+    this.startingX = e.pageX
+    this.startingY = e.pageY
     this.stopAnimate()
   }
 

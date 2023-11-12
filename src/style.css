@@ -1,26 +1,8 @@
 
-
-
-#app h2 {
-  margin:0 auto;
-  padding-top:32px;
-  color:white;
-}
-
-.image-input {
-
-  margin-top:20px;
-  margin-bottom:80px;
-  text-align:center;
-  border-radius:6px;
-  padding:6px;
-  font-size:20px;
-}
-
 .scene {
 
   width:100%;
-  height:600px;
+  height:800px;
   perspective:1100px;
   -webkit-perspective:1100px;
   perspective-origin:50% 50%;
@@ -33,17 +15,17 @@
 .carousel-3d {
 
   position:absolute;
-  top:50%;
+  top:25%;
   left:50%;
   backface-visibility: visible;
   transform:rotateX(20deg) rotateY(30deg) rotateZ(10deg);
   transform-style:preserve-3d;
   transform-origin:50% 50%;
   cursor:pointer;
+  transition: all 0.2s;
 }
 
 .carousel-item {
-
   width:400px;
   height:400px;
   transform-origin:50% 50%;
@@ -51,13 +33,54 @@
   backface-visibility: visible;
   top:-200px;
   left:-200px;
+}
+
+.carousel-item>div:first-child {
   border:4px solid #eee;
-  border-radius:12px;
-  background-color:cyan;
+  border-radius:20px;
   background-repeat:no-repeat;
   background-size:contain;
   background-position:center;
+  padding:170.78% 0 0 0;
+  position: relative;
+  box-shadow: 0px 50px 70px rgba(0, 0, 0, 0.3), 0px 10px 10px rgba(0, 0, 0, 0.1);
+  /*-webkit-box-reflect: below 0px linear-gradient(transparent, rgba(0, 0, 0, 0.5));*/
 }
+
+.carousel-item iframe {
+  border-radius: 15px;
+}
+
+.carousel-item-comment {
+  height: auto;
+  position: relative;
+  margin-top: 30px;
+  color: #000960;
+  line-height: 18px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 0 24px 0 rgba(0, 0, 0, 0.08);
+  text-align: center;
+  font-size: 14px;
+  padding: 2px 15px 2px;
+  transform: rotateY(0deg);
+  transition: all 0.5s;
+}
+
+.carousel-item-comment:before {
+  content: '';
+  width: 0px;
+  height: 0px;
+  border-left: 50px solid transparent;
+  border-right: 50px solid transparent;
+  border-bottom: 25px solid white;
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+
 
 
 
